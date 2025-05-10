@@ -1,4 +1,6 @@
-from PIL import Image, ImageFilter
+from PIL import Image, ImageFilter, ImageEnhance
+import numpy as np
+
 
 
 
@@ -6,61 +8,56 @@ from PIL import Image, ImageFilter
 filename = input("Enter the image file name (with extension): ").strip()
 with Image.open(filename) as img:
 
-    filters = ["CMYK", "RGB", "L", "BLUR", "CONTOUR", "DETAIL", "EDGE_ENHANCE", "EMBOSS", "FIND_EDGES", "SHARPEN", "SMOOTH", "SMOOTH_MORE"]
-    fIlter = input("Enter filter you want to apply (CMYK, RGB, L, BLUR, CONTOUR, DETAIL, EDGE_ENHANCE, EMBOSS, FIND_EDGES, SHARPEN, SMOOTH, SMOOTH_MORE): ").strip().upper()
-    if fIlter not in filters:
-        print("Invalid filter. Please choose from CMYK, RGB, or L!!!")
-        exit(1)
-    if fIlter == "CMYK":
-        converted_img = img.convert("CMYK")
-        img.save("converted_image.png", "PNG")
-        converted_img.show()
-    elif fIlter == "RGB":
-        converted_img = img.convert("RGB")
-        img.save("converted_image.png", "PNG")
-        converted_img.show()
-    elif fIlter == "L":
-        converted_img = img.convert("L")
-        img.save("converted_image.png", "PNG")
-        converted_img.show()
-    elif fIlter == "BLUR":
-        blurred_img = img.filter(ImageFilter.BLUR)
-        blurred_img.save("blurred_image.png", "PNG")
-        blurred_img.show()
-    elif fIlter == "CONTOUR":
-        contoured_img = img.filter(ImageFilter.CONTOUR)
-        contoured_img.save("contoured_image.png", "PNG")
-        contoured_img.show()
-    elif fIlter == "DETAIL":
-        detailed_img = img.filter(ImageFilter.DETAIL)
-        detailed_img.save("detailed_image.png", "PNG")
-        detailed_img.show()
-    elif fIlter == "EDGE_ENHANCE":
-        edge_enhanced_img = img.filter(ImageFilter.EDGE_ENHANCE)
-        edge_enhanced_img.save("edge_enhanced_image.png", "PNG")
-        edge_enhanced_img.show()
-    elif fIlter == "EMBOSS":
-        embossed_img = img.filter(ImageFilter.EMBOSS)
-        embossed_img.save("embossed_image.png", "PNG")
-        embossed_img.show()
-    elif fIlter == "FIND_EDGES":
-        edges_img = img.filter(ImageFilter.FIND_EDGES)
-        edges_img.save("edges_image.png", "PNG")
-        edges_img.show()
-    elif fIlter == "SHARPEN":
-        sharpened_img = img.filter(ImageFilter.SHARPEN)
-        sharpened_img.save("sharpened_image.png", "PNG")
-        sharpened_img.show()
-    elif fIlter == "SMOOTH":
-        smoothed_img = img.filter(ImageFilter.SMOOTH)
-        smoothed_img.save("smoothed_image.png", "PNG")
-        smoothed_img.show()
-    elif fIlter == "SMOOTH_MORE":
-        smoothed_more_img = img.filter(ImageFilter.SMOOTH_MORE)
-        smoothed_more_img.save("smoothed_more_image.png", "PNG")
-        smoothed_more_img.show()
-    else:
-        print("Invalid filter. Please choose from CMYK, RGB, or L!!!")
-        exit(1)
+    def apply_uv_filter(image_path, save_path):
 
+        Image.open(image_path)
+        strength  = float( input("Enter the strength of the UV filter (0.1 to 2.0): ").strip())
+        r, g, b, _ = img.split()
+        b = ImageEnhance.Brightness(b).enhance(strength)
+        r = ImageEnhance.Brightness(r).enhance(0.85) 
+
+        
+        
+        
+
+        filtered_img = Image.merge("RGB", (r, g, b))
+        filtered_img.save(save_path)
+        filtered_img.show()
+        print(f"UV filter applied and saved to {save_path}")
+
+
+        return filtered_img
+
+    def apply_vignette(image_path, save_path):
+            
+            img = Image.open(image_path).convert("RGBA")
+            radius = float(input("Enter the radius for the vignette effect (0.1 to 1.0): ").strip())
+            width, height = img.size
+
+           
+
+    
+            # Create a vignette mask
+            mask = Image.new("L", (width, height), 0)
+            for x in range (width):
+                for y in range (height):
+                    distance = np.sqrt((x - width / 2) ** 2 + (y - height / 2) ** 2)
+                    mask.putpixel((x, y), int(255 * (1 - min(distance / (radius * min(width, height)), 1))))
+
+            mask = mask.filter(ImageFilter.GaussianBlur(radius=radius * 10))
+            img.putalpha(mask)
+            img.save(save_path)
+            img.show()
+            print(f"Vignette effect applied and saved to {save_path}")
+        
+            return img
+    
+    choose = input("Choose an effect to apply (vignette/uv): ").strip().lower()
+    if choose == "vignette":
+        apply_vignette(filename, "vignette_image.png")
+    elif choose == "uv":
+        apply_uv_filter(filename, "uv_filtered_image.png")
+    else:
+        print("Invalid choice. Please choose either 'vignette' or 'uv'.")
+        exit()
 
