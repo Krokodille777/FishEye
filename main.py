@@ -8,10 +8,10 @@ import numpy as np
 filename = input("Enter the image file name (with extension): ").strip()
 with Image.open(filename) as img:
 
-    def apply_uv_filter(image_path, save_path):
+    def apply_uv_filter(image_path):
 
         Image.open(image_path)
-        strength  = float( input("Enter the strength of the UV filter (0.1 to 2.0): ").strip())
+        strength  = float( input("Enter the strength of the UV filter in % (1% = 0.01) (0.01 to 1.00): ").strip())
         r, g, b, _ = img.split()
         b = ImageEnhance.Brightness(b).enhance(strength)
         r = ImageEnhance.Brightness(r).enhance(0.85) 
@@ -21,17 +21,15 @@ with Image.open(filename) as img:
         
 
         filtered_img = Image.merge("RGB", (r, g, b))
-        filtered_img.save(save_path)
         filtered_img.show()
-        print(f"UV filter applied and saved to {save_path}")
 
 
         return filtered_img
 
-    def apply_vignette(image_path, save_path):
+    def apply_vignette(image_path):
             
             img = Image.open(image_path).convert("RGBA")
-            radius = float(input("Enter the radius for the vignette effect (0.1 to 1.0): ").strip())
+            radius = float(input("Enter the radius for the vignette effect in % (1% = 0.01) (0.01 to 1.00): ").strip())
             width, height = img.size
 
            
@@ -46,18 +44,31 @@ with Image.open(filename) as img:
 
             mask = mask.filter(ImageFilter.GaussianBlur(radius=radius * 10))
             img.putalpha(mask)
-            img.save(save_path)
+    
             img.show()
-            print(f"Vignette effect applied and saved to {save_path}")
+            
         
             return img
     
-    choose = input("Choose an effect to apply (vignette/uv): ").strip().lower()
+    def apply_sharpness(image_path):
+        img = Image.open (image_path).convert("RGBA")
+        sharpness = float(input("Enter the sharpness level in % (1% = 0.01): (0.01 to 1.00): ").strip())
+        enhancer = ImageEnhance.Sharpness(img)
+        sharpened_img = enhancer.enhance(sharpness)
+        
+        sharpened_img.show()
+       
+
+        return sharpened_img
+    
+    choose = input("Choose an effect to apply (vignette/uv/sharpness): ").strip().lower()
     if choose == "vignette":
         apply_vignette(filename, "vignette_image.png")
     elif choose == "uv":
         apply_uv_filter(filename, "uv_filtered_image.png")
+    elif choose == "sharpness":
+        apply_sharpness(filename, "sharpened_image.png")
     else:
-        print("Invalid choice. Please choose either 'vignette' or 'uv'.")
+        print("Invalid choice. Please choose either 'vignette' or 'uv' or 'sharpness'.")
         exit()
 
