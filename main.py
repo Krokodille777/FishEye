@@ -28,9 +28,9 @@ with Image.open(filename) as img:
 
     def apply_vignette(image_path):
             
-            img = Image.open(image_path).convert("RGBA")
+            imgv = Image.open(image_path).convert("RGBA")
             radius = float(input("Enter the radius for the vignette effect in % (1% = 0.01) (0.01 to 1.00): ").strip())
-            width, height = img.size
+            width, height = imgv.size
 
            
 
@@ -43,17 +43,17 @@ with Image.open(filename) as img:
                     mask.putpixel((x, y), int(255 * (1 - min(distance / (radius * min(width, height)), 1))))
 
             mask = mask.filter(ImageFilter.GaussianBlur(radius=radius * 10))
-            img.putalpha(mask)
+            imgv.putalpha(mask)
     
-            img.show()
+            imgv.show()
             
         
             return img
     
     def apply_sharpness(image_path):
-        img = Image.open (image_path).convert("RGBA")
+        img2 = Image.open (image_path).convert("RGBA")
         sharpness = float(input("Enter the sharpness level in % (1% = 0.01): (0.01 to 1.00): ").strip())
-        enhancer = ImageEnhance.Sharpness(img)
+        enhancer = ImageEnhance.Sharpness(img2)
         sharpened_img = enhancer.enhance(sharpness)
         
         sharpened_img.show()
@@ -61,14 +61,25 @@ with Image.open(filename) as img:
 
         return sharpened_img
     
-    choose = input("Choose an effect to apply (vignette/uv/sharpness): ").strip().lower()
-    if choose == "vignette":
-        apply_vignette(filename, "vignette_image.png")
+    def apply_blur(image_path):
+        img1 = Image.open(image_path).convert("RGBA")
+        blur = float(input("Enter the blur level in % (1% = 0.01): (0.01 to 1.00): ").strip())
+        blurred_img = img1.filter(ImageFilter.BLUR)
+        blurred_img.show()
+        return blurred_img
+    
+    choose = input("Choose an effect to apply (blur / sharpness / uv / vignette): ").strip().lower()
+    if choose == "blur":
+        apply_blur(filename)
+    if choose == "sharpness":
+        apply_sharpness(filename)
     elif choose == "uv":
-        apply_uv_filter(filename, "uv_filtered_image.png")
-    elif choose == "sharpness":
-        apply_sharpness(filename, "sharpened_image.png")
+        apply_uv_filter(filename)
+    elif choose == "vignette":
+        apply_vignette(filename)
+    
+    
     else:
-        print("Invalid choice. Please choose either 'vignette' or 'uv' or 'sharpness'.")
+        print("Invalid choice. Please choose either 'vignette' or 'uv' or 'sharpness' or 'blur' .")
         exit()
 
