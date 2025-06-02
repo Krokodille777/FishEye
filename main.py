@@ -114,7 +114,22 @@ with Image.open(filename) as img:
         fisheye_result.show()
         return fisheye_result
 
-    choose = input("Choose an effect to apply (blur / fisheye / sepia / sharpness / uv / vignette): ").strip().lower()
+    def apply_pixelate(image_path):
+        img5 = Image.open(image_path).convert("RGB")
+        img_array = np.array(img5)
+        pixel_size = int(input("Enter the pixelation size (e.g., 10 for 10x10 pixels): ").strip())
+        height, width = img_array.shape[:2]
+        pixelated_array = img_array.copy()
+        for y in range(0, height, pixel_size):
+            for x in range(0, width, pixel_size):
+                block = img_array[y:y + pixel_size, x:x + pixel_size]
+                avg_color = block.mean(axis=(0, 1)).astype(int)
+                pixelated_array[y:y + pixel_size, x:x + pixel_size] = avg_color
+        pixelated_result = Image.fromarray(pixelated_array, "RGB")
+        pixelated_result.show()
+        
+            
+    choose = input("Choose an effect to apply (blur / fisheye / pixelate / sepia / sharpness / uv / vignette): ").strip().lower()
     if choose == "blur":
         apply_blur(filename)
     if choose == "sharpness":
@@ -127,9 +142,14 @@ with Image.open(filename) as img:
         apply_sepia(filename)
     elif choose == "fisheye":
         apply_fishEye(filename)
+    elif choose == "pixelate":
+        apply_pixelate(filename)
     
     
     else:
-        print("Invalid choice. Please choose either 'vignette' or 'uv' or 'sharpness' or 'blur' or 'sepia' or 'fisheye'.")
+        print("Invalid choice. Please choose either 'vignette' or 'uv' or 'sharpness' or 'blur' or 'sepia' or 'fisheye'or 'pixelate'.")
+    save_choice = input("Do you want to save the modified image? (yes/no): ").strip().lower()
+    if save_choice == "yes":
+        save_filename = input("Enter the name to save the modified image (with extension): ").strip()
         exit()
 
