@@ -127,9 +127,68 @@ with Image.open(filename) as img:
                 pixelated_array[y:y + pixel_size, x:x + pixel_size] = avg_color
         pixelated_result = Image.fromarray(pixelated_array, "RGB")
         pixelated_result.show()
+        return pixelated_result
         
-            
-    choose = input("Choose an effect to apply (blur / fisheye / pixelate / sepia / sharpness / uv / vignette): ").strip().lower()
+
+    def apply_colorblind(image_path):
+        img6 = Image.open(image_path).convert("RGB")
+        colorblind_filter = np.array([[0.567, 0.433, 0],
+                                     [0.558, 0.442, 0],
+                                     [0.241, 0.759, 0]])
+        img_array = np.array(img6)
+
+        colorblind_img = img_array @ colorblind_filter.T
+        colorblind_img = np.clip(colorblind_img, 0, 255).astype(np.uint8)
+        colorblind_result = Image.fromarray(colorblind_img, "RGB")
+        colorblind_result.show()
+        return colorblind_result
+
+    def apply_grayscale(image_path):
+        img7 = Image.open(image_path).convert("L")
+        grayscale_result = img7.convert("RGB")
+        grayscale_result.show()
+        return grayscale_result
+    
+    def apply_negative (image_path):
+        img8 = Image.open(image_path).convert("RGB")
+        img_array = np.array(img8)
+        negative_array = 255 - img_array
+        negative_array = np.clip(negative_array, 0, 255).astype(np.uint8)
+        negative_result = Image.fromarray(negative_array, "RGB")
+        negative_result.show()
+        return negative_result
+    
+    def apply_opium(image_path):
+        img9 = Image.open(image_path).convert("RGB")
+        img_array = np.array(img9)
+        height, width = img_array.shape[:2]
+
+        y,x = np.ogrid[:height, :width]
+        center_x, center_y = width // 2, height // 2
+
+        max_distance = np.sqrt((width/2)**2 + (height/2)**2)
+        distance = np.sqrt((x - center_x)**2 + (y - center_y)**2) / max_distance
+        power = float(input("Enter the power of the opium effect in % (1% = 0.01) (0.01 to 1.00): ").strip())
+        
+
+        red_stain = distance**2 * power* 80
+
+        angle = np.arctan2(y - center_y, x - center_x)
+        pink_stain = (distance**1.5) * power * 60 * (1 + 0.5 * np.sin(angle * 3))
+
+        orange_stain = (distance ** 1.5) * power * 70 * (1 + 0.3 * np.cos(angle * 2))
+        blue_stain = (distance ** 1.5) * power * 50 * (1 + 0.4 * np.sin(angle * 4))
+
+        img_array[:, :, 0] = np.clip(img_array[:,:,0] +red_stain  + orange_stain * 0.8 + blue_stain * 0.5, 0, 255)
+        img_array[:, :, 1] = np.clip(img_array[:,:,1] + pink_stain * 0.4 + orange_stain * 0.8, 0, 255)
+        img_array[:, :, 2] = np.clip(img_array[:,:,2] * 0.8 + pink_stain * 0.3, 0, 255)
+
+        result_array = img_array.astype(np.uint8)
+        opium_result = Image.fromarray(result_array, "RGB")
+        opium_result.show()
+        return opium_result
+
+    choose = input("Choose an effect to apply (blur / colorblind / fisheye / grayscale / negative / opium / pixelate / sepia / sharpness / uv / vignette): ").strip().lower()
     if choose == "blur":
         apply_blur(filename)
     if choose == "sharpness":
@@ -144,10 +203,18 @@ with Image.open(filename) as img:
         apply_fishEye(filename)
     elif choose == "pixelate":
         apply_pixelate(filename)
+    elif choose == "colorblind":
+        apply_colorblind(filename)
+    elif choose == "grayscale":
+        apply_grayscale(filename)
+    elif choose == "negative":
+        apply_negative(filename)
+    elif choose == "opium":
+        apply_opium(filename)
     
     
     else:
-        print("Invalid choice. Please choose either 'vignette' or 'uv' or 'sharpness' or 'blur' or 'sepia' or 'fisheye'or 'pixelate'.")
+        print("Invalid choice. Please choose either 'vignette' or 'uv' or 'sharpness' or 'blur' or 'sepia' or 'fisheye'or 'pixelate' or 'colorblind'.")
     save_choice = input("Do you want to save the modified image? (yes/no): ").strip().lower()
     if save_choice == "yes":
         save_filename = input("Enter the name to save the modified image (with extension): ").strip()
