@@ -1,10 +1,10 @@
 ## FishEye
 
-# - What's FishEye?
+### - What's FishEye?
         FisgEye is a small and simple tool that allows to make the pictures more interesting, applying various effects and filters to them.
         It provides a huge list of diverse effects and filters, you can use freely to style the pics.
 
-# - List of provided effects and filters:
+### - List of provided effects and filters:
         - Blur
         - Colorblind
         - Fisheye
@@ -17,7 +17,7 @@
         - Uv
         - Vignette
 
-# - How to use FishEye?
+### - How to use FishEye?
 
 
         1. Inert the image file link in the input field (without the quotes).
@@ -30,14 +30,14 @@
         7. If you want to save the image, type "yes" in the input field, and the image will be saved in the current directory.
 
 
-# - For FishEye I used:
+### - For FishEye I used:
         - Python 
         - Pillow library
         - Numpy - (for kernel and graphical effects)
 
     
 
-# Have fun with FishEye!
+## Have fun with FishEye!
         If you have any questions, suggestions or ideas, feel free to comment on the repository.
 
                                                 
